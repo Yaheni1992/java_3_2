@@ -55,6 +55,9 @@ public class Controller implements Initializable {
     private Stage regStage;
     private RegController regController;
 
+
+    private String login;
+
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
         authPanel.setVisible(!authenticated);
@@ -66,6 +69,7 @@ public class Controller implements Initializable {
 
         if (!authenticated) {
             nickname = "";
+            History.stop();
         }
 
         textArea.clear();
@@ -109,6 +113,10 @@ public class Controller implements Initializable {
                             if (str.startsWith(Command.AUTH_OK)) {
                                 nickname = str.split(" ")[0];
                                 setAuthenticated(true);
+
+                                textArea.appendText(History.getLast100LinesOfHistory(login));
+                                History.start(login);
+
                                 break;
                             }
                             if(str.equals(Command.REG_OK) || str.equals(Command.REG_NO)){
@@ -136,9 +144,13 @@ public class Controller implements Initializable {
                                     }
                                 });
                             }
-
+                            if (str.startsWith("/journalistic ")) {
+                                nickname = str.split(" ")[1];
+                                setTitle(nickname);
+                            }
                         } else {
                             textArea.appendText(str + "\n");
+                            History.writeLine(str);
                         }
                     }
                 } catch (IOException e) {
